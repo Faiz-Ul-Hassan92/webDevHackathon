@@ -13,7 +13,6 @@ export default function InterviewPrep() {
   const [currentAnswer, setCurrentAnswer] = useState('');
   const [answers, setAnswers] = useState([]);
   const [evaluations, setEvaluations] = useState([]);
-  const [evaluating, setEvaluating] = useState(false);
   const [error, setError] = useState('');
 
   const handleGenerate = async () => {
@@ -47,76 +46,83 @@ export default function InterviewPrep() {
     }
   };
 
-    const handleSubmitAnswer = async () => {
+  const handleSubmitAnswer = async () => {
     if (!currentAnswer.trim()) return;
     
     const current = allQuestions[currentIndex];
     const answerData = { 
-        question: current.question, 
-        answer: currentAnswer,
-        type: current.type 
+      question: current.question, 
+      answer: currentAnswer,
+      type: current.type 
     };
     
     const newAnswers = [...answers, answerData];
     setAnswers(newAnswers);
     setCurrentAnswer('');
     
-    // Move to next question or evaluating stage
     if (currentIndex === allQuestions.length - 1) {
-        setStage('evaluating');
-        // Start evaluating all answers
-        evaluateAllAnswers(newAnswers);
+      setStage('evaluating');
+      evaluateAllAnswers(newAnswers);
     } else {
-        setCurrentIndex(currentIndex + 1);
+      setCurrentIndex(currentIndex + 1);
     }
-    };
+  };
 
-    const evaluateAllAnswers = async (allAnswers) => {
+  const evaluateAllAnswers = async (allAnswers) => {
     try {
-        const response = await fetch('http://localhost:8000/evaluate-batch', {
+      const response = await fetch('http://localhost:8000/evaluate-batch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-            answers: allAnswers 
-        })
-        });
+        body: JSON.stringify({ answers: allAnswers })
+      });
 
-        if (!response.ok) throw new Error('Batch evaluation failed');
-        
-        const data = await response.json();
-        setEvaluations(data.evaluations);
-        setTimeout(() => setStage('results'), 100);
+      if (!response.ok) throw new Error('Batch evaluation failed');
+      
+      const data = await response.json();
+      setEvaluations(data.evaluations);
+      setTimeout(() => setStage('results'), 100);
     } catch (err) {
-        console.error('Evaluation error:', err);
-        setError(err.message);
+      console.error('Evaluation error:', err);
+      setError(err.message);
     }
-    };
+  };
 
   if (stage === 'input') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold text-gray-800 mb-8">AI Interview Prep</h1>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-emerald-900 p-8 flex items-center justify-center">
+        <div className="max-w-2xl w-full">
+          <div className="text-center mb-12">
+            <h1 className="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-green-500 mb-4">
+              Interview Prep AI
+            </h1>
+            <p className="text-gray-400 text-lg">Master your next interview with AI-powered practice</p>
+          </div>
           
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">LinkedIn Job URL</label>
+          <div className="bg-gray-800 border border-gray-700 rounded-2xl shadow-2xl p-8">
+            <label className="block text-sm font-semibold text-emerald-400 mb-3 uppercase tracking-wide">
+              LinkedIn Job URL
+            </label>
             <div className="flex gap-3">
               <input
                 type="text"
                 value={jobUrl}
                 onChange={(e) => setJobUrl(e.target.value)}
-                placeholder="https://www.linkedin.com/jobs/view/..."
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                placeholder="Paste your LinkedIn job link here..."
+                className="flex-1 px-5 py-4 bg-gray-900 text-white border border-gray-700 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder-gray-500 transition-all"
               />
               <button
                 onClick={handleGenerate}
                 disabled={loading || !jobUrl}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
+                className="px-8 py-4 bg-gradient-to-r from-emerald-500 to-green-600 text-white font-semibold rounded-xl hover:from-emerald-600 hover:to-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg hover:shadow-emerald-500/50 transition-all"
               >
-                {loading ? <><Loader2 className="w-4 h-4 animate-spin" />Generating...</> : 'Start Interview'}
+                {loading ? <><Loader2 className="w-5 h-5 animate-spin" />Generating...</> : 'Start Interview'}
               </button>
             </div>
-            {error && <p className="text-red-600 mt-3">{error}</p>}
+            {error && <p className="text-red-400 mt-4 text-sm">{error}</p>}
+          </div>
+          
+          <div className="mt-8 text-center text-gray-500 text-sm">
+            <p>Powered by AI • Tailored to your role • Real interview questions</p>
           </div>
         </div>
       </div>
@@ -170,7 +176,6 @@ export default function InterviewPrep() {
         <div className="bg-white rounded-lg shadow-lg p-8 text-center">
           <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4 text-blue-600" />
           <p className="text-xl text-gray-700">Evaluating your answers...</p>
-          <p className="text-sm text-gray-500 mt-2">{evaluations.length} of {allQuestions.length} evaluated</p>
         </div>
       </div>
     );
