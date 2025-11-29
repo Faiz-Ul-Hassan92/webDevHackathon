@@ -22,6 +22,8 @@ export interface ResumeData {
     name: string;
     description: string;
     tech_stack: string[];
+    link?: string; // Added link support for projects
   }[];
   years_of_experience: number;
+  primary_role?: string; // <--- This was missing!
 }

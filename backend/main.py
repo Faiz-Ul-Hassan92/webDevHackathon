@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.api.endpoints import resume
-
+from app.api.endpoints import resume, jobs 
 app = FastAPI(title=settings.PROJECT_NAME)
 
 # CORS (Allows Next.js on localhost:3000 to talk to Python on localhost:8000)
@@ -21,6 +21,8 @@ app.add_middleware(
 
 # Include Routers
 app.include_router(resume.router, prefix="/api/v1/resume", tags=["Resume"])
+app.include_router(jobs.router, prefix="/api/v1/jobs", tags=["Jobs"])
+
 
 @app.get("/")
 def root():
